@@ -5,6 +5,7 @@ const {width, height} = Dimensions.get('window');
 
 class MyApp extends Component {
     render() {
+        console.log(this.globalData, "global Data");
         return (
             <View style={{flex:1, backgroundColor: 'white', justifyContent: 'flex-end'}}>
                 <View style={{...StyleSheet.absoluteFill}}>
@@ -16,7 +17,7 @@ class MyApp extends Component {
                 <View style={{height: height/3}}>
                     <View style={styles.button}>
                         <Text style={{fontSize: 20, fontWeight: 'bold', textAlign: 'center'}}
-                        // onPress={() => navigation.navigate('demo')}
+                        onPress={() => this.props.navigation.navigate('demo')}
                         >SIGN IN</Text>
                     </View>
                     <View style={{...styles.button, backgroundColor: '#0e76a8'}}>
