@@ -6,8 +6,15 @@ import MyApp from './app/index';
 import LoginComponent from './components/login';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import * as Font from 'expo-font';
+import { Ionicons } from '@expo/vector-icons';
 
 const Stack = createStackNavigator();
+const theme = {
+  Button: {
+    raised: true,
+  },
+};
 
 function cacheImages(images) {
   return images.map(image => {
@@ -27,10 +34,19 @@ export default class App extends React.Component {
     }
   }
   async _loadAssetsAsync() {
-    const imageAssets = cacheImages([require('./assets/bg.jpg')]);
+    const imageAssets = cacheImages([require('./assets/welcome.png')]);
 
     await Promise.all([...imageAssets]);
   }
+
+  async componentDidMount() {
+    await Font.loadAsync({
+      Roboto: require('native-base/Fonts/Roboto.ttf'),
+      Roboto_medium: require('native-base/Fonts/Roboto_medium.ttf'),
+      ...Ionicons.font,
+    });
+  }
+
 
   render() {
     if (!this.state.isReady) {
@@ -50,7 +66,7 @@ export default class App extends React.Component {
           headerShown: false
         }}>
           <Stack.Screen name="myApp" component={MyApp} />
-          <Stack.Screen name="demo" component={LoginComponent} />
+          <Stack.Screen name="login" component={LoginComponent} />
         </Stack.Navigator>
     </NavigationContainer>
     );

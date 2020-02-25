@@ -10,14 +10,14 @@ class MyApp extends Component {
             <View style={{flex:1, backgroundColor: 'white', justifyContent: 'flex-end'}}>
                 <View style={{...StyleSheet.absoluteFill}}>
                     <Image 
-                    source={require('../assets/bg.jpg')}
+                    source={require('../assets/welcome.png')}
                     style={{flex: 1, height:null, width: null}}
                     />
                 </View>
                 <View style={{height: height/3}}>
                     <View style={styles.button}>
                         <Text style={{fontSize: 20, fontWeight: 'bold', textAlign: 'center'}}
-                        onPress={() => this.props.navigation.navigate('demo')}
+                        onPress={() => this.props.navigation.navigate('login')}
                         >SIGN IN</Text>
                     </View>
                     <View style={{...styles.button, backgroundColor: '#0e76a8'}}>
