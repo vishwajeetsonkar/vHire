@@ -4,6 +4,7 @@ import { Asset } from 'expo-asset';
 import { AppLoading } from 'expo';
 import MyApp from './app/index';
 import LoginComponent from './components/login';
+import UserProfileComponent from './components/userProfile';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import * as Font from 'expo-font';
@@ -45,30 +46,52 @@ export default class App extends React.Component {
       Roboto_medium: require('native-base/Fonts/Roboto_medium.ttf'),
       ...Ionicons.font,
     });
+    this.setState({ isReady: true });
   }
 
 
   render() {
-    if (!this.state.isReady) {
-      return (
-        <AppLoading
-          startAsync={this._loadAssetsAsync}
-          onFinish={() => this.setState({ isReady: true })}
-          onError={console.warn}
-        />
-      );
-    }
+    // if (!this.state.isReady) {
+    //   return (
+    //     <AppLoading
+    //       startAsync={this._loadAssetsAsync}
+    //       onFinish={() => this.setState({ isReady: true })}
+    //       onError={console.warn}
+    //     />
+    //   );
+    // }
 
+    // return (
+    //   <NavigationContainer>
+    //     <Stack.Navigator
+    //     screenOptions={{
+    //       headerShown: false
+    //     }}>
+    //       <Stack.Screen name="userProfile" component={UserProfileComponent} />
+    //       <Stack.Screen name="myApp" component={MyApp} />
+    //       <Stack.Screen name="login" component={LoginComponent} />
+    //     </Stack.Navigator>
+    // </NavigationContainer>
+    // );
+    
+    if (!this.state.isReady) {
+      return <AppLoading />;
+    }
     return (
       <NavigationContainer>
-        <Stack.Navigator
+      <Stack.Navigator
+        headerMode="float"
         screenOptions={{
           headerShown: false
-        }}>
-          <Stack.Screen name="myApp" component={MyApp} />
-          <Stack.Screen name="login" component={LoginComponent} />
-        </Stack.Navigator>
-    </NavigationContainer>
+        }}
+        >
+        <Stack.Screen name="userProfile" component={UserProfileComponent} options={{
+          title: 'My home',
+          }} />
+        <Stack.Screen name="myApp" component={MyApp} />
+        <Stack.Screen name="login" component={LoginComponent} />
+      </Stack.Navigator>
+  </NavigationContainer>
     );
   }
 }

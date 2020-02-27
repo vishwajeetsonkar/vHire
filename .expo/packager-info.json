@@ -1,9 +1,9 @@
 {
   "devToolsPort": 19002,
-  "expoServerPort": null,
-  "packagerPort": null,
-  "packagerPid": null,
-  "expoServerNgrokUrl": null,
-  "packagerNgrokUrl": null,
-  "ngrokPid": null
+  "expoServerPort": 19000,
+  "packagerPort": 19003,
+  "packagerPid": 66851,
+  "expoServerNgrokUrl": "https://5m-dnt.vishwajeet25.vhire.exp.direct",
+  "packagerNgrokUrl": "https://packager.5m-dnt.vishwajeet25.vhire.exp.direct",
+  "ngrokPid": 66872
 }
