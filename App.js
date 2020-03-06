@@ -8,6 +8,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import * as Font from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
+import UserListComponent from './app/components/userList';
+import UserProfileComponent from './app/components/userProfile';
 
 const Stack = createStackNavigator();
 const theme = {
@@ -67,6 +69,8 @@ export default class App extends React.Component {
         }}>
           <Stack.Screen name="myApp" component={MyApp} />
           <Stack.Screen name="login" component={LoginComponent} />
+          <Stack.Screen name="userList" component={UserListComponent} />
+          <Stack.Screen name="userProfile" component={UserProfileComponent} />
         </Stack.Navigator>
     </NavigationContainer>
     );

@@ -3,6 +3,7 @@ import { View, ScrollView, StyleSheet, Text, TextInput } from 'react-native';
 import { Container, Header, Content, Item, Input, Form, Button } from 'native-base';
 
 class LoginComponent extends Component {
+  
   render() {
     return (
       
@@ -17,7 +18,7 @@ class LoginComponent extends Component {
             <TextInput style={styles.input} secureTextEntry={true}/>
             <View style={styles.button}>
               <Button block light>
-                <Text style={{fontSize: 20, fontWeight: 'bold'}}>Log In</Text>
+                <Text style={{fontSize: 20, fontWeight: 'bold'}} onPress={() => this.props.navigation.navigate('userList')}>Log In</Text>
               </Button>
             </View>
             </Form>
