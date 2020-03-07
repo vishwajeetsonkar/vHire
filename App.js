@@ -2,14 +2,14 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Asset } from 'expo-asset';
 import { AppLoading } from 'expo';
-import MyApp from './app/index';
-import LoginComponent from './components/login';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import * as Font from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
-import UserListComponent from './app/components/userList';
-import UserProfileComponent from './app/components/userProfile';
+import MyApp from './screens/index';
+import LoginComponent from './screens/login';
+import UserListComponent from './screens/userList';
+import UserProfileComponent from './screens/userProfile';
 
 const Stack = createStackNavigator();
 const theme = {

@@ -14,7 +14,6 @@ export default class AppBarComponent extends Component {
     _handleMore = () => console.log('Shown more');
     
     render() {
-        console.log(this.props)
         const title = this.props.title;
         return (
             <Appbar.Header>
