@@ -1,9 +1,9 @@
 {
-  "expoServerNgrokUrl": "https://wj-wsb.vishwajeet25.vhire.exp.direct",
-  "packagerNgrokUrl": "https://packager.wj-wsb.vishwajeet25.vhire.exp.direct",
-  "ngrokPid": 11240,
+  "expoServerNgrokUrl": "https://wj-wsb.anonymous.vhire.exp.direct",
+  "packagerNgrokUrl": "https://packager.wj-wsb.anonymous.vhire.exp.direct",
+  "ngrokPid": 20592,
   "expoServerPort": 19000,
   "packagerPort": 19001,
-  "packagerPid": 12804,
+  "packagerPid": 6364,
   "devToolsPort": 19002
 }
