@@ -1,22 +1,108 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from 'react-native';
 import { Asset } from 'expo-asset';
 import { AppLoading } from 'expo';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import * as Font from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
-import MyApp from './screens/index';
-import LoginComponent from './screens/login';
-import UserListComponent from './screens/userList';
-import UserProfileComponent from './screens/userProfile';
+// import MyApp from './screens/index';
+// import LoginComponent from './screens/login';
+// import UserListComponent from './screens/userList';
+// import UserProfileComponent from './screens/userProfile';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { createDrawerNavigator } from '@react-navigation/drawer';
+// import { ScrollView } from 'react-native-gesture-handler';
+import { CustomHeader } from './components';
+import { HomeScreen, HomeScreenDetail } from './screens';
+import { SettingScreen, SettingScreenDetail } from './screens';
+import { LoginScreenDetail, RegisterScreenDetail } from './screens/auth';
+import {NotificationsScreen} from './screens/drawer';
 
 const Stack = createStackNavigator();
+const Tab = createBottomTabNavigator();
+const Drawer = createDrawerNavigator();
+
+const navOptionHandler = () => ({
+  headerShown: false
+})
 const theme = {
   Button: {
     raised: true,
   },
 };
+
+
+const StackHome = createStackNavigator();
+
+function HomeStack() {
+  return (
+    <Stack.Navigator initialRouteName="Home"
+
+    tabBarOptions={{
+      activeTintColor: 'tomato',
+      inactiveTintColor: 'gray',
+    }}
+    >
+      <StackHome.Screen name="Home" component={HomeScreen} options={navOptionHandler}></StackHome.Screen>
+      <StackHome.Screen name="HomeDetail" component={HomeScreenDetail} options={navOptionHandler}></StackHome.Screen>
+    </Stack.Navigator>
+  )
+}
+
+const StackSetting = createStackNavigator();
+
+function SettingStack() {
+  return (
+    <Stack.Navigator initialRouteName="Setting">
+      <StackSetting.Screen name="Setting" component={SettingScreen} options={navOptionHandler}></StackSetting.Screen>
+      <StackSetting.Screen name="SettingDetail" component={SettingScreenDetail} options={navOptionHandler}></StackSetting.Screen>
+    </Stack.Navigator>
+  )
+}
+
+function TabNavigator() {
+  return(
+    <Tab.Navigator
+    screenOptions={({ route }) => ({
+      tabBarIcon: ({ focused, color, size }) => {
+        let iconName;
+
+        if (route.name === 'Home') {
+          iconName = focused
+            ? 'ios-information-circle'
+            : 'ios-information-circle-outline';
+        } else if (route.name === 'Settings') {
+          iconName = focused ? 'ios-list-box' : 'ios-list';
+        }
+
+        // You can return any component that you like here!
+        return <Ionicons name={iconName} size={size} color={color} />;
+      },
+    })}>
+      <Tab.Screen name="Home" component={HomeStack} />
+      <Tab.Screen name="Settings" component={SettingStack} />
+  </Tab.Navigator>   
+  )
+}
+
+function CustomDrawerContent(props){
+  return(
+    <SafeAreaView>
+      <ScrollView style={{marginLeft:5}}>
+      <TouchableOpacity style={{marginTop:20}}
+        onPress={()=> props.navigation.navigate('ManuTab')}>
+          <Text>Manu Tab</Text>
+        </TouchableOpacity>
+      <TouchableOpacity style={{marginTop:20}}
+        onPress={()=> props.navigation.navigate('Notifications')}>
+          <Text>Notifications</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </SafeAreaView>
+  )
+}
 
 function cacheImages(images) {
   return images.map(image => {
@@ -28,6 +114,15 @@ function cacheImages(images) {
   });
 }
 
+const StackApp = createStackNavigator();
+function DrawerNavigator() {
+  return (
+    <Drawer.Navigator initialRouteName="ManuTab" drawerContent={props =>CustomDrawerContent(props)}>
+        <Drawer.Screen name="ManuTab" component={TabNavigator} />
+        <Drawer.Screen name="Notifications" component={NotificationsScreen} />
+      </Drawer.Navigator>
+  )
+}
 export default class App extends React.Component {
   constructor() {
     super()
@@ -49,7 +144,6 @@ export default class App extends React.Component {
     });
   }
 
-
   render() {
     if (!this.state.isReady) {
       return (
@@ -60,19 +154,16 @@ export default class App extends React.Component {
         />
       );
     }
+    
 
     return (
       <NavigationContainer>
-        <Stack.Navigator
-        screenOptions={{
-          headerShown: false
-        }}>
-          <Stack.Screen name="myApp" component={MyApp} />
-          <Stack.Screen name="login" component={LoginComponent} />
-          <Stack.Screen name="userList" component={UserListComponent} />
-          <Stack.Screen name="userProfile" component={UserProfileComponent} />
-        </Stack.Navigator>
-    </NavigationContainer>
+        <StackApp.Navigator initialRouteName="Login">
+          <StackApp.Screen name="HomeApp" component={DrawerNavigator} options={navOptionHandler}/>
+          <StackApp.Screen name="Login" component={LoginScreenDetail} options={navOptionHandler} />
+          <StackApp.Screen name="Register" component={RegisterScreenDetail} options={navOptionHandler} />
+        </StackApp.Navigator>
+      </NavigationContainer>
     );
   }
 }
@@ -85,3 +176,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
 });
+
+
+        {/* <Stack.Navigator
+        screenOptions={{
+          headerShown: false
+        }}>
+          <Stack.Screen name="myApp" component={MyApp} />
+          <Stack.Screen name="login" component={LoginComponent} />
+          <Stack.Screen name="userList" component={UserListComponent} />
+          <Stack.Screen name="userProfile" component={UserProfileComponent} />
+        </Stack.Navigator> */}
