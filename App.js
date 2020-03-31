@@ -7,18 +7,14 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import * as Font from 'expo-font';
 import { Ionicons } from '@expo/vector-icons';
-// import MyApp from './screens/index';
-// import LoginComponent from './screens/login';
-// import UserListComponent from './screens/userList';
-// import UserProfileComponent from './screens/userProfile';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { createDrawerNavigator } from '@react-navigation/drawer';
-// import { ScrollView } from 'react-native-gesture-handler';
-import { CustomHeader } from './components';
-import { HomeScreen, HomeScreenDetail } from './screens';
+import { UserVideosList } from './screens/Videos'
+import { UserListScreen, UserProfileDetail } from './screens';
 import { SettingScreen, SettingScreenDetail } from './screens';
 import { LoginScreenDetail, RegisterScreenDetail } from './screens/auth';
 import {NotificationsScreen} from './screens/drawer';
+import FileUpload from './components/fileUpload';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -34,19 +30,18 @@ const theme = {
 };
 
 
-const StackHome = createStackNavigator();
+const StackUserProfile = createStackNavigator();
 
-function HomeStack() {
+function UserProfileStack() {
   return (
-    <Stack.Navigator initialRouteName="Home"
-
+    <Stack.Navigator initialRouteName="User"
     tabBarOptions={{
       activeTintColor: 'tomato',
       inactiveTintColor: 'gray',
     }}
     >
-      <StackHome.Screen name="Home" component={HomeScreen} options={navOptionHandler}></StackHome.Screen>
-      <StackHome.Screen name="HomeDetail" component={HomeScreenDetail} options={navOptionHandler}></StackHome.Screen>
+      {/* <StackUserProfile.Screen name="UserList" component={UserListScreen} options={navOptionHandler}/> */}
+      <StackUserProfile.Screen name="UserDetail" component={UserProfileDetail} options={navOptionHandler}/>
     </Stack.Navigator>
   )
 }
@@ -68,20 +63,26 @@ function TabNavigator() {
     screenOptions={({ route }) => ({
       tabBarIcon: ({ focused, color, size }) => {
         let iconName;
-
-        if (route.name === 'Home') {
-          iconName = focused
-            ? 'ios-information-circle'
-            : 'ios-information-circle-outline';
-        } else if (route.name === 'Settings') {
-          iconName = focused ? 'ios-list-box' : 'ios-list';
+        switch (route.name) {
+          case "UserList":
+            iconName = focused ? 'ios-information-circle' : 'ios-information-circle-outline';
+            break;
+          case "UserVideosList":
+            iconName = focused ? 'ios-videocam' : 'ios-videocam';
+            break;
+          case "Settings":
+            iconName = focused ? 'ios-list-box' : 'ios-list';
+            break;
+          default:
+            break;
         }
 
         // You can return any component that you like here!
         return <Ionicons name={iconName} size={size} color={color} />;
       },
     })}>
-      <Tab.Screen name="Home" component={HomeStack} />
+      <Tab.Screen name="UserList" component={UserProfileStack} />
+      <Tab.Screen name="UserVideosList" component={UserVideosList}/>
       <Tab.Screen name="Settings" component={SettingStack} />
   </Tab.Navigator>   
   )

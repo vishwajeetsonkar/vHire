@@ -3,23 +3,18 @@ import React, { Component } from 'react';
 // import {CustomHeader} from '../components';
 import { Chip, Paragraph } from 'react-native-paper';
 import AppBarComponent from '../components/appBarComponent';
-import { View, StyleSheet, ScrollView, Dimensions } from 'react-native';
+import { View, StyleSheet, ScrollView, Dimensions, Text } from 'react-native';
 
 import { Video } from 'expo-av';
-
+import { TouchableOpacity } from 'react-native-gesture-handler';
 const {width} = Dimensions;
 
-export class HomeScreenDetail extends Component {
+export class UserProfileDetail extends Component {
     render() {
+        const {navigation} = this.props;
         return (
-            // <SafeAreaView style={{flex:1}}>
-            //   <CustomHeader title="Home Detail" navigation={this.props.navigation}/>
-            //   <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            //     <Text>Home Detail!</Text>
-            //   </View>
-            // </SafeAreaView>
             <View style={{ flex: 1, backgroundColor: '#fbfcfd' }}>
-            <AppBarComponent title="Sachin" navigation={this.props.navigation}/>
+            <AppBarComponent title="Sachin" navigation={navigation}/>
             <ScrollView>
                 <Video
                     source={{ uri: 'http://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4' }}
