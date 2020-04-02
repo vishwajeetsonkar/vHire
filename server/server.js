@@ -19,10 +19,10 @@ connection.on('error', function(err){
 process.on('SIGINT', function() {
     connection.close(function() {
     console.log("Mongoose default connection is disconnected due to application termination");
-    process.exit(0);
+    process.exit();
     });
 })
-const port = 1000;
+const port = 1001;
 const server = app.listen(port,()=>{
     console.log(`server is running on ${port}`)
 })
