@@ -1,5 +1,5 @@
 export * from './SettingScreen';
 export * from './SettingScreenDetails';
-export * from './HomeScreen';
-export * from './HomeScreenDetails';
+export * from './UserListScreen';
+export * from './UserProfileDetail';
 export * from './CustomDrawerContent';
