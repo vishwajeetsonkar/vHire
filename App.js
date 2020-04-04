@@ -40,7 +40,6 @@ function UserProfileStack() {
       inactiveTintColor: 'gray',
     }}
     >
-      {/* <StackUserProfile.Screen name="UserList" component={UserListScreen} options={navOptionHandler}/> */}
       <StackUserProfile.Screen name="UserDetail" component={UserProfileDetail} options={navOptionHandler}/>
     </Stack.Navigator>
   )
