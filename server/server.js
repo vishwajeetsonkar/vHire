@@ -22,7 +22,7 @@ process.on('SIGINT', function() {
     process.exit();
     });
 })
-const port = 1001;
+const port = 1002;
 const server = app.listen(port,()=>{
     console.log(`server is running on ${port}`)
 })

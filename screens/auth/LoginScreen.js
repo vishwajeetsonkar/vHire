@@ -23,20 +23,6 @@ import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view
 export class LoginScreenDetail extends Component {
   render() {
     return (
-      // <SafeAreaView style={{flex:1}}>
-      //   <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      //     <Text>Login Screen</Text>
-      //     <TouchableOpacity style={{marginTop:20}}
-      //     onPress={() => this.props.navigation.navigate('HomeApp')}>
-      //       <Text>Login</Text>
-      //     </TouchableOpacity>
-      //     <TouchableOpacity style={{marginTop:20}}
-      //     onPress={() => this.props.navigation.navigate('Register')}>
-      //       <Text>Register</Text>
-      //     </TouchableOpacity>
-      //   </View>
-      // </SafeAreaView>
-
       <Container style={styles.wrapper}>
         <Image
           style={styles.backgroundImage}
@@ -53,7 +39,7 @@ export class LoginScreenDetail extends Component {
             >
               <Form style={styles.form}>
                 <View style={styles.wrapInput}>
-                  <TextInput style={styles.input} placeholder="Email" value='' placeholderTextColor= 'red'/>
+                  <TextInput style={styles.input} placeholder="Email" value=''/>
                 </View>
                 <View style={styles.wrapInput}>
                   <TextInput

@@ -116,4 +116,4 @@ shellAppWorkspaces
 .env.production.local
 .env
 
-package-lock.json
+./package-lock.json

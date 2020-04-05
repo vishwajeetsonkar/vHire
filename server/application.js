@@ -42,8 +42,8 @@ done(null, obj);
 init(app);
 
 
-// app.get('*', (req, res) => {
-//     res.sendFile(path.join(__dirname, `${process.env.NODE_ENV === 'development'? 'public' : 'build'}/index.html`));
-// });
+app.get('/hello', (req, res) => {
+    res.send('Hello');
+});
 
 module.exports = app
