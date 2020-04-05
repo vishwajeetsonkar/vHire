@@ -1,26 +1,43 @@
 import React, { Component } from "react";
-// import { Text, View, SafeAreaView, TouchableOpacity } from 'react-native';
-import {
-  View,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  ImageBackground,
-  Image
-} from "react-native";
-import {
-  Container,
-  Header,
-  Content,
-  Item,
-  Input,
-  Form,
-  Button
-} from "native-base";
+import { View, StyleSheet, Text, TextInput, Image, TouchableOpacity } from "react-native";
+import { Container, Header, Content, Item, Input, Form, Button } from "native-base";
 import { AntDesign } from "@expo/vector-icons";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 export class LoginScreenDetail extends Component {
+  constructor(props) {
+    super();
+    this.state = {
+      email: '',
+      password: ''
+    }
+    this.props = props;
+  }
+
+  handleLogin() {
+    fetch('http://192.168.0.109:1002/api/user/login', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: this.state.email,
+        password: this.state.password,
+      }),
+    }).then((response) => response.json())
+    .then((json) => {
+      if(json.status == 200) {
+        console.log(json)
+        this.props.navigation.navigate('HomeApp');
+      } else {
+        this.state.error = "Login Failed";
+      }
+    })
+    .catch(err => {
+      console.error(err)
+    })
+  }
+
   render() {
     return (
       <Container style={styles.wrapper}>
@@ -39,16 +56,22 @@ export class LoginScreenDetail extends Component {
             >
               <Form style={styles.form}>
                 <View style={styles.wrapInput}>
-                  <TextInput style={styles.input} placeholder="Email" value=''/>
+                  <TextInput 
+                    style={styles.input} 
+                    placeholder="Email"
+                    onChangeText={(email) => this.setState({email})}
+                    value= {this.state.email} />
                 </View>
                 <View style={styles.wrapInput}>
                   <TextInput
                     style={styles.input}
                     secureTextEntry={true}
                     placeholder="Password"
-                    value=''
+                    onChangeText={(password) => this.setState({password})}
+                    value = {this.state.password}
                   />
                 </View>
+                {this.state.error ? <View><Text>Login Failed</Text></View> : <View><Text>' '</Text></View>}
                 <View style={{ flex: 1, flexDirection: "row", marginTop: 10 }}>
                   <View style={{ flex: 1, alignItems: "flex-start" }}>
                     <Text
@@ -57,22 +80,17 @@ export class LoginScreenDetail extends Component {
                       Forgot Password ?
                     </Text>
                   </View>
+                  <TouchableOpacity>
                   <View style={{ flex: 1, alignItems: "flex-end" }}>
                     <AntDesign
                       name="rightsquareo"
                       size={40}
                       color="white"
-                      onPress={() => this.props.navigation.navigate("HomeApp")}
+                      // onPress={() => this.props.navigation.navigate("HomeApp")}
+                      onPress={() => this.handleLogin()}
                     />
                   </View>
-                  {/* <Button block light>
-                  <Text
-                    style={{ fontSize: 20, fontWeight: "bold" }}
-                    onPress={() => this.props.navigation.navigate("HomeApp")}
-                  >
-                    Log In
-                  </Text>
-                </Button> */}
+                  </TouchableOpacity>
                 </View>
               </Form>
             </KeyboardAwareScrollView>
