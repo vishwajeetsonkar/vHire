@@ -1,14 +1,16 @@
 import React, { Component } from "react";
-import { View, StyleSheet, Text, TextInput, Image, TouchableOpacity } from "react-native";
+import { View, StyleSheet, Text, TextInput, Image, TouchableOpacity, AsyncStorage } from "react-native";
 import { Container, Header, Content, Item, Input, Form, Button } from "native-base";
 import { AntDesign } from "@expo/vector-icons";
+import { ActivityIndicator, Colors } from 'react-native-paper';
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 export class LoginScreenDetail extends Component {
   constructor(props) {
     super();
     this.state = {
       email: '',
-      password: ''
+      password: '', 
+      error: null
     }
     this.props = props;
   }
@@ -28,9 +30,10 @@ export class LoginScreenDetail extends Component {
     .then((json) => {
       if(json.status == 200) {
         console.log(json)
+        this._storeData(json.token, json.result._id, json.result.email);
         this.props.navigation.navigate('HomeApp');
       } else {
-        this.state.error = "Login Failed";
+        this.setState({error: "Login Failed"})
       }
     })
     .catch(err => {
@@ -38,7 +41,19 @@ export class LoginScreenDetail extends Component {
     })
   }
 
+  _storeData = async (token, id, email) => {
+    try {
+      await AsyncStorage.setItem('token', token);
+      await AsyncStorage.setItem('id', id);
+      await AsyncStorage.setItem('email', email);
+    } catch (error) {
+      // Error saving data
+      console.log('error storing data');
+    }
+  };
+
   render() {
+    const {email, password, error} = this.state;
     return (
       <Container style={styles.wrapper}>
         <Image
@@ -60,7 +75,7 @@ export class LoginScreenDetail extends Component {
                     style={styles.input} 
                     placeholder="Email"
                     onChangeText={(email) => this.setState({email})}
-                    value= {this.state.email} />
+                    value= {email} />
                 </View>
                 <View style={styles.wrapInput}>
                   <TextInput
@@ -68,10 +83,10 @@ export class LoginScreenDetail extends Component {
                     secureTextEntry={true}
                     placeholder="Password"
                     onChangeText={(password) => this.setState({password})}
-                    value = {this.state.password}
+                    value = {password}
                   />
                 </View>
-                {this.state.error ? <View><Text>Login Failed</Text></View> : <View><Text>' '</Text></View>}
+                  {error ? <View><Text style={{color: 'red'}}>{error}</Text></View> : <View><Text>{error}</Text></View>}
                 <View style={{ flex: 1, flexDirection: "row", marginTop: 10 }}>
                   <View style={{ flex: 1, alignItems: "flex-start" }}>
                     <Text
@@ -86,7 +101,7 @@ export class LoginScreenDetail extends Component {
                       name="rightsquareo"
                       size={40}
                       color="white"
-                      // onPress={() => this.props.navigation.navigate("HomeApp")}
+                      // onPress={() => this.props.navigation.navigate('HomeApp')}
                       onPress={() => this.handleLogin()}
                     />
                   </View>

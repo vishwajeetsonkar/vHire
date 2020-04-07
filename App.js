@@ -11,7 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { createDrawerNavigator } from '@react-navigation/drawer';
 import { UserVideosList } from './screens/Videos'
 import { UserListScreen, UserProfileDetail } from './screens';
-import { SettingScreen, SettingScreenDetail } from './screens';
+import { SettingScreen, SettingScreenDetail, ChangePassword } from './screens';
 import { LoginScreenDetail, RegisterScreenDetail } from './screens/auth';
 import {NotificationsScreen} from './screens/drawer';
 import FileUpload from './components/fileUpload';
@@ -63,10 +63,10 @@ function TabNavigator() {
       tabBarIcon: ({ focused, color, size }) => {
         let iconName;
         switch (route.name) {
-          case "UserList":
+          case "Home":
             iconName = focused ? 'ios-information-circle' : 'ios-information-circle-outline';
             break;
-          case "UserVideosList":
+          case "Videos":
             iconName = focused ? 'ios-videocam' : 'ios-videocam';
             break;
           case "Settings":
@@ -80,9 +80,9 @@ function TabNavigator() {
         return <Ionicons name={iconName} size={size} color={color} />;
       },
     })}>
-      <Tab.Screen name="UserList" component={UserProfileStack} />
-      <Tab.Screen name="UserVideosList" component={UserVideosList}/>
-      <Tab.Screen name="Settings" component={SettingStack} />
+      <Tab.Screen name="Home" component={UserProfileStack} />
+      <Tab.Screen name="Videos" component={UserVideosList}/>
+      {/* <Tab.Screen name="Settings" component={SettingStack} /> */}
   </Tab.Navigator>   
   )
 }
@@ -98,6 +98,10 @@ function CustomDrawerContent(props){
       <TouchableOpacity style={{marginTop:20}}
         onPress={()=> props.navigation.navigate('Notifications')}>
           <Text>Notifications</Text>
+        </TouchableOpacity>
+      <TouchableOpacity style={{marginTop:20}}
+        onPress={()=> props.navigation.navigate('ChangePassword')}>
+          <Text>Change Password</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
@@ -120,6 +124,7 @@ function DrawerNavigator() {
     <Drawer.Navigator initialRouteName="ManuTab" drawerContent={props =>CustomDrawerContent(props)}>
         <Drawer.Screen name="ManuTab" component={TabNavigator} />
         <Drawer.Screen name="Notifications" component={NotificationsScreen} />
+        <Drawer.Screen name="ChangePassword" component={ChangePassword} />
       </Drawer.Navigator>
   )
 }
