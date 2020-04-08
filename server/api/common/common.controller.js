@@ -3,15 +3,13 @@ const crypto = require('crypto');
 const ALGO = 'sha256';
 const AWS = require('aws-sdk');
 const dotenv = require('dotenv')
-dotenv.config({path:__dirname+'/.env'});
-
-
+const env = dotenv.config({path:require('find-config')('server/.env') });
 const s3 = new AWS.S3({
-    accessKeyId: process.env.ACCESS_KEY,
-    secretAccessKey: process.env.SECRET_KEY,
+    accessKeyId: env.parsed.ACCESS_KEY,
+    secretAccessKey: env.parsed.SECRET_KEY,
     region: 'ap-south-1'
 })
-function getSignedUrl(params) {
+const getSignedUrl = (params) => {
     return new Promise((resolve, reject) => {
       s3.getSignedUrl('putObject', params, function(err, url) {
         if (err) {
@@ -24,33 +22,40 @@ function getSignedUrl(params) {
 
 module.exports = {
     getPresignedUrl: async (req, res) => {
-        if (req.body.bucketName && req.body.bucketName.length) {
+        req.body = req.body.data;
+        if (req.body.bucketName && req.body.bucketName.length && req.body.files && req.body.files.length && req.body.folderName && req.body.userId) {
             const dataToSend = [];
-            for (let file of request.body.files) {
+            console.log(req.body);
+            for (let file of req.body.files) {
+                let fileName = `${new Date().getTime()}_${req.body.userId}`;
                 const hash = crypto.createHash(ALGO)
-                .update(`${file.fileName}_${Date.now()}_${request.body.userId}`, 'utf-8')
+                .update(`${fileName}`, 'utf-8')
                 .digest('hex');
                 const params = {
                   'Bucket': req.body.bucketName,
-                  'Key': `videos/${req.body.userId}/${hash}`,
+                  'Key': `${req.body.folderName}/${req.body.userId}/${hash}`,
                   'Expires': 6000,
-                  'ContentType': file.type,
+                  'ContentType': file.contentType,
                   'ACL': 'public-read',
                 };
+                console.log(params);
+
                 try {
                   let signedUrl = await getSignedUrl(params);
                   let data = JSON.parse(JSON.stringify(file));
+                  console.log({signedUrl});
                   data.url = signedUrl;
                   data.hash = hash;
+                  data.fileName = fileName;
                   dataToSend.push(data);
                 } catch (error) {
                   res.status(500).json({error});
                 }
             }
-            res.status(200).json({data: dataToSend});
+            res.status(200).send(dataToSend);
 
         } else {
-            res.status(422).json({error: 'please provide bucket name'});
+            res.status(422).json({error: 'Check if any of these key is missing while passing to this api [bucketName, files(As Array) folderName, userId]'});
         }      
     },
 }

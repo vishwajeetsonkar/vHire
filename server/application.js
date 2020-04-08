@@ -21,8 +21,12 @@ app.use(cors(), function (req, res, next) {
 
 app.use(morgan('dev'));
 app.use(cookieParser());
-app.use(bodyParser.json({}));
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json({limit: '100mb'}));
+app.use(bodyParser.urlencoded({ 
+    extended: false, 
+    parameterLimit: 100000,
+    limit: '100mb', }));
+
 // session related task & passport intiallization...
 app.use(session({ secret: 'appveil7867'}));
 app.use(passport.initialize());

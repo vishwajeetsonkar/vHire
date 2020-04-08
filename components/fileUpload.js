@@ -15,9 +15,9 @@ export default class FileUpload extends React.Component {
     const {type} = this.props.route.params;
     return (
       <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        {
-          type == 'gallary' ? 
-          <Button
+        
+          
+        <Button
           title="Pick an image from camera roll"
           onPress={this._clickPicture}
         /> : 
@@ -26,9 +26,6 @@ export default class FileUpload extends React.Component {
           onPress={this._pickImage}
         />
         }
-        
-        {image &&
-          <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />}
       </View>
     );
   }
