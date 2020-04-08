@@ -16,7 +16,6 @@ import { Video } from "expo-av";
 import style from "./userVideoesStyle";
 import axios from "../../services/axios";
 import { environment } from "../../environment/environment";
-
 export class UserVideosList extends Component {
   state = {
     videoesToUpload: []
@@ -89,8 +88,9 @@ export class UserVideosList extends Component {
   };
 
   urltoFile = (url, filename, mimeType) => {
-    return fetch(url)
+    return newFetch(url)
       .then(function(res) {
+          console.log({res});
         return res.arrayBuffer();
       })
       .then(function(buf) {
@@ -152,13 +152,32 @@ export class UserVideosList extends Component {
             video => video.id === presinedURL.id
           );
           if (index > -1) {
-         
-            const fileData = await this.urltoFile(
-              this.state.videoesToUpload[index].uri,
-              presinedURL.hash,
-              presinedURL.contentType
-            );
-            console.log('------------------------', url);
+              let data = new FormData();
+              data.append('file', { uri: this.state.videoesToUpload[index].uri, name: presinedURL.fileName, type: presinedURL.contentType });
+              console.log({data})
+            axios.post(`${environment.baseUrl}/api/common/uploadVideo`, data,
+                {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'multipart/form-data',
+                      },
+                },
+            )
+            .then(res => {
+                console.log({res});
+            })
+            .catch(err => {
+                console.log(JSON.stringify(err), '....');
+            })
+            // const fileData = await this.urltoFile(
+            //   this.state.videoesToUpload[index].uri,
+            //   presinedURL.hash,
+            //   presinedURL.contentType
+            // );
+            // await this.requestBlob(this.state.videoesToUpload[index].uri).then(re => console.log(re)).catch(error => errors.push(error));
+            // console.log(this.state.videoesToUpload[index].uri);
+            // let a = await this.urlToBlob(this.state.videoesToUpload[index].uri);
+            // console.log('------------------------', a);
 
             // const s3 = await this.uploadToS3(
             //   presinedURL.url,

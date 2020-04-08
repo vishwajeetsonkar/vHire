@@ -9,6 +9,7 @@ const s3 = new AWS.S3({
     secretAccessKey: env.parsed.SECRET_KEY,
     region: 'ap-south-1'
 })
+
 const getSignedUrl = (params) => {
     return new Promise((resolve, reject) => {
       s3.getSignedUrl('putObject', params, function(err, url) {
@@ -58,4 +59,14 @@ module.exports = {
             res.status(422).json({error: 'Check if any of these key is missing while passing to this api [bucketName, files(As Array) folderName, userId]'});
         }      
     },
+    uploadVideo: (req, res) => {
+        const file = req.file
+        console.log({file}, req.file.path);
+        if (!file) {
+            const error = new Error('Please upload a file')
+            error.httpStatusCode = 400
+            return res.status(500).send(error);
+        }
+            res.send(file);
+    }
 }
