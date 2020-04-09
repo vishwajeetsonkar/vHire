@@ -155,12 +155,7 @@ export class UserVideosList extends Component {
               let data = new FormData();
               data.append('file', { uri: this.state.videoesToUpload[index].uri, name: presinedURL.fileName, type: `${presinedURL.type}/${presinedURL.contentType}`,presinedURL });
               console.log({data})
-            axios.post(`${environment.baseUrl}/api/common/uploadVideo`, data, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            }
-            )
+            axios.post(`${environment.baseUrl}/api/common/uploadVideo`, data)
             .then(res => {
                 console.log({res});
             })

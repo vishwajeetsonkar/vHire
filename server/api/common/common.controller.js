@@ -61,7 +61,7 @@ module.exports = {
     },
     uploadVideo: (req, res) => {
         const file = req.file
-        console.log({file}, req.file.path, JSON.stringify(req.body));
+        console.log({file}, req.file.path, req.query);
         if (!file) {
             const error = new Error('Please upload a file')
             error.httpStatusCode = 400
