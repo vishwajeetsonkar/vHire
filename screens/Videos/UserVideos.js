@@ -153,7 +153,8 @@ export class UserVideosList extends Component {
           );
           if (index > -1) {
               let data = new FormData();
-              data.append('file', { uri: this.state.videoesToUpload[index].uri, name: presinedURL.fileName, type: `${presinedURL.type}/${presinedURL.contentType}`,presinedURL });
+              data.append('otherDetails', JSON.stringify({ folderName: "videoes",userId: 1,bucketName: "appveil",}));
+              data.append('file', { uri: this.state.videoesToUpload[index].uri, name: presinedURL.fileName, type: `${presinedURL.type}/${presinedURL.contentType}` });
               console.log({data})
             axios.post(`${environment.baseUrl}/api/common/uploadVideo`, data)
             .then(res => {
