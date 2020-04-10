@@ -117,3 +117,4 @@ shellAppWorkspaces
 .env
 
 ./package-lock.json
+uploads/*

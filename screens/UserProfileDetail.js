@@ -22,7 +22,7 @@ export class UserProfileDetail extends Component {
                     volume={1.0}
                     isMuted={false}
                     resizeMode="cover"
-                    shouldPlay
+                    shouldPlay={false}
                     isLooping
                     style={{ width: width, height: 300 }}
                 />

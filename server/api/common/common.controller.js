@@ -6,6 +6,8 @@ const dotenv = require("dotenv");
 const env = dotenv.config({
   path: require("find-config")("server/.env")
 });
+const fs = require('fs');
+console.log(env.parsed, '.....');
 const s3 = new AWS.S3({
   accessKeyId: env.parsed.ACCESS_KEY,
   secretAccessKey: env.parsed.SECRET_KEY,
@@ -14,7 +16,7 @@ const s3 = new AWS.S3({
 
 const getSignedUrl = params => {
   return new Promise((resolve, reject) => {
-    s3.getSignedUrl("putObject", params, function(err, url) {
+    s3.getSignedUrl("putObject", params, function (err, url) {
       if (err) {
         reject(err);
       }
@@ -70,29 +72,51 @@ module.exports = {
       res.status(200).send(dataToSend);
     } else {
       res.status(422).json({
-        error:
-          "Check if any of these key is missing while passing to this api [bucketName, files(As Array) folderName, userId]"
+        error: "Check if any of these key is missing while passing to this api [bucketName, files(As Array) folderName, userId]"
       });
     }
   },
   uploadVideo: (req, res) => {
     const file = req.file;
+    console.log({
+      file
+    });
     const otherDetails = JSON.parse(req.body.otherDetails);
+    const readStream = fs.createReadStream(file.path)
+    console.log(readStream);
     const params = {
       Bucket: `${otherDetails.bucketName}/${otherDetails.folderName}/${otherDetails.userId}`,
       Key: file.originalname,
-      Body: file.buffer,
+      Body: readStream,
       ContentType: file.mimetype,
       ACL: "public-read"
     };
-    console.log({params});
-    let s3Request = s3.upload(params, (err, data) => {
-        console.log({err, data});
-    }).on('httpUploadProgress', (e) =>{
-        console.log('qqq');
+
+    let s3Request = s3.putObject(params, (err, data) => {
+      console.log({
+        err,
+        data
+      });
+      fs.unlink(file.path, function (err) {
+        if (err) {
+          console.error(err);
+        }
+      });
+    }).on('httpUploadProgress', (e) => {
+      console.log('qqq');
     });
     console.log(s3Request);
-    
-    res.send({message: 'success'});
+
+    res.send({
+      message: 'success'
+    });
+    // setTimeout(() => {
+    //   fs.unlink(file.path, function (err) {
+    //     if (err) {
+    //       console.error(err);
+    //     }
+    //   });
+    // }, 5000);
   }
+
 };
