@@ -7,6 +7,7 @@ const env = dotenv.config({
   path: require("find-config")("server/.env")
 });
 const fs = require('fs');
+const genralFunctions = require('../../helpers/generalFunctions');
 
 const s3 = new AWS.S3({
   accessKeyId: env.parsed.ACCESS_KEY,
@@ -84,13 +85,13 @@ module.exports = {
       ACL: "public-read"
     };
 
-    let s3Request = s3.putObject(s3params, function (err, data) {
+    let s3Request = s3.putObject(s3params, async function (err, data) {
         console.log({
           err,
           data
         });
-        var params = this.request.params;
-        var region = this.request.httpRequest.region;
+        const params = this.request.params;
+        const region = this.request.httpRequest.region;
         fs.unlink(file.path, function (err) {
           if (err) {
             console.error(err);
@@ -98,8 +99,14 @@ module.exports = {
         });
         delete global[globalVarKey];
         if (!err) {
-          console.log('s3://' + params.Bucket + '/' + params.Key);
-          console.log('https://s3-' + region + '.amazonaws.com/' + params.Bucket + '/' + params.Key)
+          let s3Url = 'https://s3-' + region + '.amazonaws.com/' + params.Bucket + '/' + params.Key;
+          console.log('https://s3-' + region + '.amazonaws.com/' + params.Bucket + '/' + params.Key);
+          let file = await genralFunctions.saveFileSchema({
+            fileName: file.originalname,
+            s3Url,
+            user: otherDetails.userId
+          })
+          console.log('file schema saved', file);
         } else {
           otherDetails.isVideoFailed = true;
           req.app.get('socket').emit(`uploadStatusSuccess_${1}`, otherDetails)

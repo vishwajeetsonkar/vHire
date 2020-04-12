@@ -14,6 +14,7 @@ let UserSchema = new Schema({
         pin: {type:Number}
     },
     phone: {type:Number},
+    files: [{type: Schema.ObjectId, ref: 'File', index: true}],
 });
 
 module.exports = mongoose.model('User', UserSchema);
