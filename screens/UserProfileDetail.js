@@ -10,6 +10,13 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 const {width} = Dimensions;
 
 export class UserProfileDetail extends Component {
+    componentWillUnmount(){
+        console.log('UserProfileDetail/js unmounted');
+      }
+      componentDidMount() {
+          console.log('UserProfileDetail is mounted');
+      }
+    
     render() {
         const {navigation} = this.props;
         return (

@@ -1,5 +1,15 @@
 import React, { Component } from "react";
-import { Card, Title, Button, Text, List } from "react-native-paper";
+import {
+  Card,
+  Title,
+  Button,
+  Text,
+  List,
+  Dialog,
+  Portal,
+  Paragraph,
+  Snackbar,
+} from "react-native-paper";
 import AppBarComponent from "../../components/appBarComponent";
 import {
   View,
@@ -7,31 +17,32 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  TouchableHighlight
+  TouchableHighlight,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import Constants from "expo-constants";
 import * as Permissions from "expo-permissions";
 import { Video } from "expo-av";
-import style from "./userVideoesStyle";
+import styles from "./userVideosStyle";
 import axios from "../../services/axios";
 import { environment } from "../../environment/environment";
+import * as FileSystem from "expo-file-system";
+import { AntDesign } from "@expo/vector-icons";
+import ProgressCircle from "react-native-progress-circle";
+import { socket } from "../../services/socket/socket";
 export class UserVideosList extends Component {
   state = {
-    videoesToUpload: []
+    videosToUpload: [],
+    videoIndex: 1,
+    visibleDialog: false,
+    visibleSnackbar: false,
+    requestToDelete: {}
   };
 
   componentDidMount() {
-    // const { type } = this.props.route.params;
-    // switch (type) {
-    // case 'gallary':
     this.getPermissionAsyncGallery();
-    // break;
-
-    // default:
     this.getPermissionAsync_ForCamera();
-    // break;
-    // }
+    this.listenVideoUpload();
   }
 
   getPermissionAsyncGallery = async () => {
@@ -57,203 +68,286 @@ export class UserVideosList extends Component {
       mediaTypes: ImagePicker.MediaTypeOptions.Videos,
       allowsEditing: true,
       aspect: [4, 3],
-      quality: 1
+      quality: 1,
     });
-
     if (!videoDetails.cancelled) {
-      let videoes = this.state.videoesToUpload;
-      videoDetails.contentType = videoDetails.uri.substr(
-        videoDetails.uri.lastIndexOf(".") + 1
-      );
-      videoDetails.id = this.state.videoesToUpload.length + 1;
-      videoes.push(videoDetails);
-      this.setState({ videoesToUpload: videoes });
-      console.log(this.state.videoesToUpload);
-    }
-  };
-
-  _clickPicture = async () => {
-    let result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1
-    });
-
-    console.log(result);
-
-    if (!result.cancelled) {
-      this.setState({ image: result.uri });
-    }
-  };
-
-  urltoFile = (url, filename, mimeType) => {
-    return newFetch(url)
-      .then(function(res) {
-          console.log({res});
-        return res.arrayBuffer();
-      })
-      .then(function(buf) {
-        return new File([buf], filename, {
-          type: mimeType
+      let fileDetails = await FileSystem.getInfoAsync(videoDetails.uri);
+      if (!fileDetails.exists) {
+        alert("file doesn't exists");
+      } else if (fileDetails.size / 1000000 > 50) {
+        // size will be in bytes so dividing with 1000000 to convert to mb
+        alert("Please select File below 50mb");
+      } else {
+        let videos = this.state.videosToUpload;
+        videoDetails.contentType = videoDetails.uri.substr(
+          videoDetails.uri.lastIndexOf(".") + 1
+        );
+        videoDetails.id = this.state.videoIndex;
+        videoDetails.isProgressStart = false;
+        videoDetails.percentageDone = 0;
+        videoDetails.isVideoFailed = false;
+        this.setState({
+          videoIndex: this.state.videoIndex + 1,
         });
-      });
-  };
-
-  uploadToS3 = (url, uri, type) => {
-    const headers = { "Content-Type": type, "x-amz-acl": "public-read" };
-    return new Promise((resolve, reject) => {
-      axios
-        .put(url, { file: imageData }, headers)
-        .then(res => {
-          if (res.url) {
-            resolve(res);
-          } else {
-            reject("no url");
-          }
-        })
-        .catch(err => {
-          console.log({ err });
-        });
-      //   this.http
-      //     .request(req)
-      //     .toPromise()
-      //     .then((res: any) => {
-      //       if (res.url) {
-      //         resolve(res);
-      //       }
-      //     })
-      //     .catch(err => {
-      //       console.log(err);
-      //       reject(err);
-      //     });
-    });
+        videos.push(videoDetails);
+        this.setState({ videosToUpload: videos });
+      }
+    }
   };
 
   upload = async () => {
-    let files = JSON.parse(JSON.stringify(this.state.videoesToUpload));
-    files.forEach(file => {
-      delete file.uri;
-    });
-    let data = {
-      folderName: "videoes",
-      userId: 1,
-      bucketName: "appveil",
-      files
-    };
-    axios
-      .post(`${environment.baseUrl}/api/common/getPresignedUrl`, { data })
-      .then(async results => {
-        // results = JSON.parse(JSON.stringify(results.data));
-        // console.log(results.data[0]);
-        for (const presinedURL of results.data) {
-          console.log({ presinedURL });
-          let index = this.state.videoesToUpload.findIndex(
-            video => video.id === presinedURL.id
-          );
-          if (index > -1) {
-              let data = new FormData();
-              data.append('otherDetails', JSON.stringify({ folderName: "videoes",userId: 1,bucketName: "appveil",contentType: presinedURL.contentType}));
-              data.append('file', { uri: this.state.videoesToUpload[index].uri, name: presinedURL.fileName, type: `${presinedURL.type}/${presinedURL.contentType}` });
-              console.log({data})
-            axios.post(`${environment.baseUrl}/api/common/uploadVideo`, data)
-            .then(res => {
-                console.log({res});
-            })
-            .catch(err => {
-                console.log(JSON.stringify(err), '....');
-            })
-            // const fileData = await this.urltoFile(
-            //   this.state.videoesToUpload[index].uri,
-            //   presinedURL.hash,
-            //   presinedURL.contentType
-            // );
-            // await this.requestBlob(this.state.videoesToUpload[index].uri).then(re => console.log(re)).catch(error => errors.push(error));
-            // console.log(this.state.videoesToUpload[index].uri);
-            // let a = await this.urlToBlob(this.state.videoesToUpload[index].uri);
-            // console.log('------------------------', a);
-
-            // const s3 = await this.uploadToS3(
-            //   presinedURL.url,
-            //   fileData,
-            //   presinedURL.contentType
-            // );
-            // const url = s3.url.split("?")[0];
-            // console.log({ url });
-          }
-        }
-      })
-      .catch(err => {
-        console.log("err", err);
+    let files = JSON.parse(JSON.stringify(this.state.videosToUpload));
+    files = files.filter((file) => !file.isProgressStart);
+    for (const file of files) {
+      let otherDetails = {
+        folderName: "videos",
+        userId: 1,
+        bucketName: "flowace-resources/example",
+        contentType: file.contentType,
+        isProgressStart: file.isProgressStart,
+        isVideoFailed: file.isVideoFailed,
+        id: file.id,
+      };
+      let data = new FormData();
+      data.append("otherDetails", JSON.stringify(otherDetails));
+      data.append("file", {
+        uri: file.uri,
+        name: `${new Date().getTime()}`,
+        type: `${file.type}/${file.contentType}`,
       });
+      let req = await axios.post(
+        `${environment.baseUrl}/api/common/abortVideoUpload`,
+        { userId: 1, id: file.id }
+      );
+      await axios.post(`${environment.baseUrl}/api/common/uploadVideo`, data);
+    }
   };
 
+  _onDismissSnackBar = () => this.setState({ visibleSnackbar: false });
+
+  checkBeforeRemovingVideo = async (video, index) => {
+    //   this.setState()
+    this.setState({ visibleDialog: false });
+    if (video.isProgressStart) {
+      try {
+        let req = await axios.post(
+          `${environment.baseUrl}/api/common/abortVideoUpload`,
+          { userId: 1, id: video.id }
+        );
+        this.removeSelectedVideo(video);
+      } catch (e) {
+        console.log(e);
+        this.removeSelectedVideo(video);
+      }
+    } else {
+      this.removeSelectedVideo(video);
+    }
+  };
+
+  removeSelectedVideo = async (video) => {
+    let videos = this.state.videosToUpload;
+    let index = videos.findIndex((vid) => vid.id === video.id);
+    if (index > -1) {
+      videos.splice(index, 1);
+      this.setState({
+        videosToUpload: videos,
+      });
+    }
+  };
+
+  listenVideoUpload() {
+    const socketEvent = socket.getSocket();
+    socketEvent.on(`uploadStatusSuccess_${1}`, (data) => {
+      let videosToUpload = this.state.videosToUpload;
+      videosToUpload.forEach((video, index) => {
+        if (video.id === data.id) {
+          video.percentageDone = data.percentageDone;
+          video.isVideoFailed = data.isVideoFailed;
+          video.isProgressStart = data.isProgressStart;
+        }
+      });
+      this.setState({ videosToUpload });
+      let index = this.state.videosToUpload.findIndex(
+        (video) => video.id === data.id
+      );
+      if (index > -1) {
+        if (this.state.videosToUpload[index].percentageDone === 100) {
+          this.setState({ visibleSnackbar: true });
+          this.removeSelectedVideo(this.state.videosToUpload[index]);
+        }
+      }
+    });
+  }
+
+  _hideDialog = () => this.setState({ visibleDialog: false });
+
+  setVisibleDialog = (value, video) => {
+    this.setState({ visibleDialog: value, requestToDelete: video });
+  }
+
   render() {
-    let { image, videoesToUpload } = this.state;
+    let { image, videosToUpload } = this.state;
     const { navigation } = this.props;
     return (
-      <View style={{ flex: 1 }}>
-        <View style={{ backgroundColor: "#fbfcfd" }}>
+      <View
+        style={{
+          flex: 1,
+        }}
+      >
+        <View
+          style={{
+            backgroundColor: "#fbfcfd",
+          }}
+        >
           <AppBarComponent title="Videos" navigation={navigation} />
         </View>
-        <View style={style.mainContainer}>
+        <View style={styles.mainContainer}>
           <Button
-            style={style.uploadBtn}
+            style={styles.selectFileBtn}
             icon="camera"
             mode="contained"
             onPress={this._pickVideo}
+            disabled={this.state.videosToUpload.length === 5}
           >
             Select Video
           </Button>
+          <Text
+            style={{
+              textAlign: "center",
+            }}
+          >
+            (Maximum 5 files can be selected)
+          </Text>
         </View>
-        <View style={style.selectedVidBox}>
-          {videoesToUpload.length
-            ? videoesToUpload.map(video => {
+
+        <View style={videosToUpload.length && styles.selectedVidBox}>
+          {videosToUpload.length
+            ? videosToUpload.map((video, index) => {
                 return (
-                  <Video
-                    source={{ uri: video.uri }}
-                    rate={1.0}
-                    volume={1.0}
-                    isMuted={true}
-                    resizeMode="cover"
-                    shouldPlay={false}
-                    isLooping
-                    style={{ width: 300, height: 300 }}
+                  <View
+                    style={{
+                      position: "relative",
+                      paddingLeft: 15,
+                    }}
                     key={video.id}
-                  />
+                  >
+                    <Video
+                      source={{
+                        uri: video.uri,
+                      }}
+                      rate={1.0}
+                      volume={1.0}
+                      isMuted={true}
+                      resizeMode="cover"
+                      shouldPlay={false}
+                      isLooping
+                      style={{
+                        width: 175,
+                        height: 125,
+                        flexDirection: "column",
+                        margin: 5,
+                        justifyContent: "space-between",
+                      }}
+                    />
+                    <AntDesign
+                      name="closecircle"
+                      size={20}
+                      color="black"
+                      style={{
+                        position: "absolute",
+                        top: 5,
+                        right: 5,
+                      }}
+                      onPress={() =>
+                        video.isProgressStart
+                          ? this.setVisibleDialog(true, video)
+                          : this.checkBeforeRemovingVideo(video, index)
+                      }
+                    />
+                    {!video.isVideoFailed ? (
+                      video.isProgressStart && (
+                        <View
+                          style={{
+                            position: "absolute",
+                            top: 50,
+                            left: 85,
+                            zIndex: 999,
+                          }}
+                        >
+                          <ProgressCircle
+                            percent={video.percentageDone}
+                            radius={20}
+                            borderWidth={3}
+                            color="#6200ee"
+                            shadowColor="#999"
+                            bgColor="#fff"
+                          >
+                            <Text
+                              style={{
+                                fontSize: 10,
+                              }}
+                            >
+                              {`${video.percentageDone}%`}
+                            </Text>
+                          </ProgressCircle>
+                        </View>
+                      )
+                    ) : (
+                      <View style={{ position: "absolute", top: 60, left: 60 }}>
+                        <Text
+                          style={{
+                            backgroundColor: "white",
+                            color: "#6200ee",
+                            zIndex: 999,
+                          }}
+                        >
+                          Upload Failed
+                        </Text>
+                      </View>
+                    )}
+                  </View>
                 );
               })
             : null}
+          <Portal>
+            <Dialog
+              visible={this.state.visibleDialog}
+              onDismiss={this._hideDialog}
+            >
+              <Dialog.Content>
+                <Paragraph>
+                  Are you sure you want to delete? {this.state.requestToDelete.id}
+                </Paragraph>
+              </Dialog.Content>
+              <Dialog.Actions>
+                <Button onPress={() => this.setState({ visibleDialog: false })}>
+                  Cancel
+                </Button>
+                <Button
+                  onPress={() => this.checkBeforeRemovingVideo(this.state.requestToDelete)}
+                >
+                  Ok
+                </Button>
+              </Dialog.Actions>
+            </Dialog>
+          </Portal>
         </View>
-        <TouchableHighlight style={{ flex: 1 }} onPress={this.upload}>
-          <Text>Upload</Text>
-        </TouchableHighlight>
-        {/* <ScrollView> */}
-        {/* <List.Section title="Click Upload to select a video"> */}
-        {/* <View style={{ flex: 1, flexDirection: "row", justifyContent: "center" }}>
-                            <Button icon="camera" mode="contained" onPress={this._pickVideo}>
-                                Select Video
-                            </Button>
-                        </View>
-                        
-                            {
-                                videoesToUpload.length && videoesToUpload.map(video => {
-                                    
-                                    return <View>
-                                    <Video source={{ uri: video.uri }}
-                                    rate={1.0}
-                                    volume={1.0}
-                                    isMuted={true}
-                                    resizeMode="cover"
-                                    shouldPlay={false}
-                                    isLooping
-                                    style={{ width: 300, height: 300 }} />
-                                    </View>
-                                })
-                            } */}
 
-        {/* </List.Section> */}
-        {/* </ScrollView> */}
+        <TouchableHighlight onPress={this.upload} style={styles.uploadBtn}>
+          <Button
+            style={styles.uploadBtn}
+            mode="contained"
+            disabled={this.state.videosToUpload.length === 0}
+          >
+            Upload
+          </Button>
+        </TouchableHighlight>
+        <Snackbar
+          visible={this.state.visibleSnackbar}
+          onDismiss={this._onDismissSnackBar}
+        >
+          File Uploaded Successfully 🎉
+        </Snackbar>
       </View>
     );
   }

@@ -15,6 +15,8 @@ import { SettingScreen, SettingScreenDetail } from './screens';
 import { LoginScreenDetail, RegisterScreenDetail } from './screens/auth';
 import {NotificationsScreen} from './screens/drawer';
 import FileUpload from './components/fileUpload';
+import { socket } from './services/socket/socket';
+import { Provider as PaperProvider } from 'react-native-paper';
 
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -129,6 +131,7 @@ export default class App extends React.Component {
     this.state = {
       isReady: false
     }
+    socket.setSocketConnection();
   }
   async _loadAssetsAsync() {
     const imageAssets = cacheImages([require('./assets/welcome.png')]);
@@ -157,6 +160,7 @@ export default class App extends React.Component {
     
 
     return (
+      <PaperProvider>
       <NavigationContainer>
         <StackApp.Navigator initialRouteName="HomeApp">
           <StackApp.Screen name="HomeApp" component={DrawerNavigator} options={navOptionHandler}/>
@@ -164,6 +168,7 @@ export default class App extends React.Component {
           <StackApp.Screen name="Register" component={RegisterScreenDetail} options={navOptionHandler} />
         </StackApp.Navigator>
       </NavigationContainer>
+      </PaperProvider>
     );
   }
 }
@@ -187,3 +192,4 @@ const styles = StyleSheet.create({
           <Stack.Screen name="userList" component={UserListComponent} />
           <Stack.Screen name="userProfile" component={UserProfileComponent} />
         </Stack.Navigator> */}
+

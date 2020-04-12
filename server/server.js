@@ -3,6 +3,8 @@ const app = require('./application');
 const dotenv = require('dotenv')
 const path = require('path')
 dotenv.config({path:__dirname+'/.env'});
+const SocketClass = require('./services/socket');
+
 // Mongo Connection
 const uri = process.env.MONGO_URI;
 mongoose.connect(uri);
@@ -24,6 +26,9 @@ process.on('SIGINT', function() {
 })
 const port = 1003;
 const server = app.listen(port,()=>{
-    console.log(`server is running on ${port}`)
+    console.log(`server is running on ${port}`);
+    let socket = new SocketClass(server, app);
+
 })
+
 module.exports = server

@@ -7,11 +7,11 @@ const env = dotenv.config({
   path: require("find-config")("server/.env")
 });
 const fs = require('fs');
-console.log(env.parsed, '.....');
+
 const s3 = new AWS.S3({
   accessKeyId: env.parsed.ACCESS_KEY,
   secretAccessKey: env.parsed.SECRET_KEY,
-  region: "ap-south-1"
+  region: "ap-southeast-1"
 });
 
 const getSignedUrl = params => {
@@ -37,7 +37,6 @@ module.exports = {
       req.body.userId
     ) {
       const dataToSend = [];
-      console.log(req.body);
       for (let file of req.body.files) {
         let fileName = `${new Date().getTime()}_${req.body.userId}`;
         const hash = crypto
@@ -51,14 +50,10 @@ module.exports = {
           ContentType: file.contentType,
           ACL: "public-read"
         };
-        console.log(params);
 
         try {
           let signedUrl = await getSignedUrl(params);
           let data = JSON.parse(JSON.stringify(file));
-          console.log({
-            signedUrl
-          });
           data.url = signedUrl;
           data.hash = hash;
           data.fileName = fileName;
@@ -78,45 +73,64 @@ module.exports = {
   },
   uploadVideo: (req, res) => {
     const file = req.file;
-    console.log({
-      file
-    });
     const otherDetails = JSON.parse(req.body.otherDetails);
     const readStream = fs.createReadStream(file.path)
-    console.log(readStream);
-    const params = {
+    let globalVarKey = `uploadRequest_${otherDetails.userId}_${otherDetails.id}`;
+    const s3params = {
       Bucket: `${otherDetails.bucketName}/${otherDetails.folderName}/${otherDetails.userId}`,
-      Key: file.originalname,
+      Key: `${file.originalname}.${otherDetails.contentType}`,
       Body: readStream,
       ContentType: file.mimetype,
       ACL: "public-read"
     };
 
-    let s3Request = s3.putObject(params, (err, data) => {
-      console.log({
-        err,
-        data
-      });
-      fs.unlink(file.path, function (err) {
-        if (err) {
-          console.error(err);
+    let s3Request = s3.putObject(s3params, function (err, data) {
+        console.log({
+          err,
+          data
+        });
+        var params = this.request.params;
+        var region = this.request.httpRequest.region;
+        fs.unlink(file.path, function (err) {
+          if (err) {
+            console.error(err);
+          }
+        });
+        delete global[globalVarKey];
+        if (!err) {
+          console.log('s3://' + params.Bucket + '/' + params.Key);
+          console.log('https://s3-' + region + '.amazonaws.com/' + params.Bucket + '/' + params.Key)
+        } else {
+          otherDetails.isVideoFailed = true;
+          req.app.get('socket').emit(`uploadStatusSuccess_${1}`, otherDetails)
         }
+      })
+      .on('httpUploadProgress', (progress) => {
+        console.log(Math.round(progress.loaded / progress.total * 100) + '% done', otherDetails);
+        let percentageDone = Math.round(progress.loaded / progress.total * 100);
+        otherDetails.percentageDone = percentageDone;
+        otherDetails.isProgressStart = true;
+        req.app.get('socket').emit(`uploadStatusSuccess_${1}`, otherDetails)
       });
-    }).on('httpUploadProgress', (e) => {
-      console.log('qqq');
+    // setting request to global object so when user want to abort upload then he/she can abort it
+    global[globalVarKey] = s3Request;
+    res.json({
+      success: true
     });
-    console.log(s3Request);
+  },
 
-    res.send({
-      message: 'success'
-    });
-    // setTimeout(() => {
-    //   fs.unlink(file.path, function (err) {
-    //     if (err) {
-    //       console.error(err);
-    //     }
-    //   });
-    // }, 5000);
+  abortVideoUpload: (req, res) => {
+    let globalVarKey = `uploadRequest_${req.body.userId}_${req.body.id}`;
+    if (global[globalVarKey]) {
+      // aborting request
+      global[globalVarKey].abort();
+      res.json({
+        value: true
+      });
+    } else {
+      res.json({
+        value: false
+      });
+    }
   }
-
 };
