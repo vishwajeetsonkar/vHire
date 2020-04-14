@@ -162,7 +162,7 @@ export default class App extends React.Component {
     return (
       <PaperProvider>
       <NavigationContainer>
-        <StackApp.Navigator initialRouteName="HomeApp">
+        <StackApp.Navigator initialRouteName="Login">
           <StackApp.Screen name="HomeApp" component={DrawerNavigator} options={navOptionHandler}/>
           <StackApp.Screen name="Login" component={LoginScreenDetail} options={navOptionHandler} />
           <StackApp.Screen name="Register" component={RegisterScreenDetail} options={navOptionHandler} />
