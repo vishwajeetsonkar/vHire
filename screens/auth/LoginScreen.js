@@ -9,28 +9,21 @@ import {
   ImageBackground,
   Image,
   Dimensions,
+  AsyncStorage
 } from "react-native";
-import {
-  Container,
-  Header,
-  Content,
-  Item,
-  Input,
-  Form,
-  Button,
-} from "native-base";
+
 import {
   AntDesign,
   MaterialCommunityIcons,
   MaterialIcons,
 } from "@expo/vector-icons";
+import { View, StyleSheet, Text, TextInput, Image, TouchableOpacity, AsyncStorage } from "react-native";
+import { Container, Header, Content, Item, Input, Form, Button } from "native-base";
+import { ActivityIndicator, Colors } from 'react-native-paper';
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import style from "../../components/login/style";
+import styles from "../../components/login/style";
 export class LoginScreenDetail extends Component {
-  state = {
-    isEmailFocused: false,
-    isPasswordFocused: false,
-  };
+  
   handleFocus = (stateVariable) => {
     let detail = {};
     detail[stateVariable] = true;
@@ -41,9 +34,58 @@ export class LoginScreenDetail extends Component {
     let detail = {};
     detail[stateVariable] = false;
     this.setState(detail);
+  }
+  constructor(props) {
+    super();
+    this.state = {
+      email: '',
+      password: '', 
+      error: null,
+      isEmailFocused: false,
+      isPasswordFocused: false,
+    }
+    this.props = props;
+  }
+
+  handleLogin() {
+    fetch('http://192.168.0.109:1002/api/user/login', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: this.state.email,
+        password: this.state.password,
+      }),
+    }).then((response) => response.json())
+    .then((json) => {
+      if(json.status == 200) {
+        console.log(json)
+        this._storeData(json.token, json.result._id, json.result.email);
+        this.props.navigation.navigate('HomeApp');
+      } else {
+        this.setState({error: "Login Failed"})
+      }
+    })
+    .catch(err => {
+      console.error(err)
+    })
+  }
+
+  _storeData = async (token, id, email) => {
+    try {
+      await AsyncStorage.setItem('token', token);
+      await AsyncStorage.setItem('id', id);
+      await AsyncStorage.setItem('email', email);
+    } catch (error) {
+      // Error saving data
+      console.log('error storing data');
+    }
   };
 
   render() {
+    const {email, password, error} = this.state;
     return (
       <Container style={styles.wrapper}>
         <Image style={styles.backgroundImage}></Image>
@@ -92,6 +134,7 @@ export class LoginScreenDetail extends Component {
                       }
                       onFocus={() => this.handleFocus("isEmailFocused")}
                       onBlur={() => this.handleBlur("isEmailFocused")}
+                      onChangeText={(email) => this.setState({email})}
                     />
                   </View>
                 </View>
@@ -113,6 +156,7 @@ export class LoginScreenDetail extends Component {
                       }
                       onFocus={() => this.handleFocus("isPasswordFocused")}
                       onBlur={() => this.handleBlur("isPasswordFocused")}
+                      onChangeText={(password) => this.setState({password})}
                     />
                   </View>
                 </View>
@@ -141,126 +185,3 @@ export class LoginScreenDetail extends Component {
     );
   }
 }
-
-const styles = StyleSheet.create({
-  wrapper: {
-    flex: 1,
-  },
-  backgroundImage: {
-    flex: 1,
-    resizeMode: "cover",
-  },
-  loginView: {
-    position: "absolute",
-    top: 125,
-    left: 0,
-    right: 0,
-    backgroundColor: "white",
-    padding: 10,
-    paddingTop: 40,
-  },
-  scrollViewWrapper: {
-    flex: 1,
-  },
-  loginHeader: {
-    fontWeight: "bold",
-    paddingLeft: 20,
-    fontSize: 28,
-    color: "black",
-    paddingTop: 10,
-    paddingBottom: 5,
-  },
-  linkedinLogo: {
-    fontWeight: "bold",
-    paddingLeft: 20,
-    fontSize: 30,
-    color: "blue",
-    paddingTop: 20,
-    paddingBottom: 20,
-    textShadowOffset: { width: 5, height: 2 },
-    shadowColor: "black",
-    shadowOpacity: 0.7,
-  },
-  loginBox: {
-    padding: 30,
-  },
-  label: {
-    color: "black",
-    fontSize: 14,
-    fontWeight: "700",
-    marginBottom: 10,
-  },
-  form: {
-    padding: 20,
-  },
-  input: {
-    color: "black",
-    lineHeight: 1.2,
-    fontSize: 13,
-    height: 40,
-    paddingTop: 10,
-    paddingRight: 10,
-    paddingLeft: 10,
-    paddingBottom: 10,
-  },
-  wrapInput: {
-    backgroundColor: "black",
-    // border: "1px solid white",
-    borderRadius: 5,
-    marginBottom: 20,
-  },
-  button: {
-    marginTop: 30,
-  },
-  formItem: {
-    marginRight: 5,
-    marginBottom: 30,
-  },
-  formLabel: {
-    fontSize: 11,
-    marginBottom: 4,
-    fontWeight: "600",
-    color: "grey",
-  },
-  formInput: {
-    borderRadius: 5,
-    width: Dimensions.get("window").width - 75,
-    fontSize: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "grey",
-    paddingHorizontal: 25,
-    color: "grey",
-  },
-  formInputEmailFocused: {
-    borderRadius: 5,
-    width: Dimensions.get("window").width - 75,
-    fontSize: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "blue",
-    paddingHorizontal: 25,
-    color: "blue",
-  },
-  formInputPasswordFocused: {
-    borderRadius: 5,
-    width: Dimensions.get("window").width - 75,
-    fontSize: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: "blue",
-    paddingHorizontal: 25,
-    color: "blue",
-  },
-  signInBtn: {
-    backgroundColor: "blue",
-    color: "white",
-    fontSize: 16,
-    paddingTop: 12,
-    paddingRight: 30,
-    paddingBottom: 12,
-    paddingLeft: 30,
-    borderWidth: 1,
-    width: Dimensions.get("window").width / 2,
-    textAlign: "center",
-    borderRadius: 25,
-    marginTop: 20,
-  },
-});

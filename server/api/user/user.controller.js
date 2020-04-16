@@ -18,7 +18,7 @@ module.exports = {
                     if (err) {
                         return res.json(err);
                     } else {
-                        return res.json({'status': 200, 'userInfo': userInfo});
+                        return res.json({'status': 201, 'userInfo': userInfo});
                     }
                 });
             }
@@ -31,7 +31,7 @@ module.exports = {
         let userId = req.decoded.id;
         utils.getUserDetail(userId).then(userDetails => {
             if (Object.keys(userDetails).length) {
-                return res.status(201).json({
+                return res.status(200).json({
                 success: true,
                 message: 'successfully fetched',
                 userDetails
