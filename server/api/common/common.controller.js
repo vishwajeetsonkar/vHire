@@ -12,7 +12,7 @@ const genralFunctions = require('../../helpers/generalFunctions');
 const s3 = new AWS.S3({
   accessKeyId: env.parsed.ACCESS_KEY,
   secretAccessKey: env.parsed.SECRET_KEY,
-  region: "ap-southeast-1"
+  region: env.S3REGION
 });
 
 const getSignedUrl = params => {
