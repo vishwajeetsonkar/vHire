@@ -1,9 +1,9 @@
 import React, { Component } from "react";
-import { View, StyleSheet, Text, TextInput, Image, TouchableOpacity, AsyncStorage } from "react-native";
+import { View, StyleSheet, Text, TextInput, Image, TouchableOpacity, AsyncStorage, KeyboardAvoidingView, Platform } from "react-native";
 import { Container, Header, Content, Item, Input, Form, Button } from "native-base";
 import { AntDesign } from "@expo/vector-icons";
 import { ActivityIndicator, Colors } from 'react-native-paper';
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
+
 export class LoginScreenDetail extends Component {
   constructor(props) {
     super();
@@ -64,11 +64,8 @@ export class LoginScreenDetail extends Component {
         <View style={styles.loginView}>
           <Content style={styles.scrollViewWrapper}>
             <Text style={styles.loginHeader}>Sign In</Text>
-            <KeyboardAwareScrollView
-              resetScrollToCoords={{ x: 0, y: 0 }}
-              scrollEnabled={true}
-              enableOnAndroid={true}
-            >
+            <KeyboardAvoidingView
+              behavior={Platform.Os == "ios" ? "padding" : "height"} >
               <Form style={styles.form}>
                 <View style={styles.wrapInput}>
                   <TextInput 
@@ -101,14 +98,14 @@ export class LoginScreenDetail extends Component {
                       name="rightsquareo"
                       size={40}
                       color="white"
-                      // onPress={() => this.props.navigation.navigate('HomeApp')}
-                      onPress={() => this.handleLogin()}
+                      onPress={() => this.props.navigation.navigate('HomeApp')}
+                      // onPress={() => this.handleLogin()}
                     />
                   </View>
                   </TouchableOpacity>
                 </View>
               </Form>
-            </KeyboardAwareScrollView>
+              </KeyboardAvoidingView>
           </Content>
         </View>
       </Container>
