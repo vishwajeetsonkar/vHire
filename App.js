@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, ScrollView } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, ScrollView, AsyncStorage } from 'react-native';
 import { Asset } from 'expo-asset';
 import { AppLoading } from 'expo';
 import { NavigationContainer } from '@react-navigation/native';
@@ -33,6 +33,7 @@ const theme = {
 
 
 const StackUserProfile = createStackNavigator();
+const StackLogin = createStackNavigator();
 
 function UserProfileStack() {
   return (
@@ -134,9 +135,10 @@ export default class App extends React.Component {
   constructor() {
     super()
     this.state = {
-      isReady: false
+      isReady: false,
+      isLoggedin: AsyncStorage.getItem('token')
     }
-    socket.setSocketConnection();
+    // socket.setSocketConnection();
   }
   async _loadAssetsAsync() {
     const imageAssets = cacheImages([require('./assets/welcome.png')]);

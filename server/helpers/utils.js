@@ -24,6 +24,7 @@ function verifyAuth(req, res, next) {
 }
 
 function getUserByEmail(email) {
+    console.log({email});
     return User.findOne({
         email
     }).exec();
@@ -60,6 +61,7 @@ module.exports = {
         }
     },
     verifyLogin: (req, res) => {
+        console.log(',,,,,', req.body);
         let result = {};
         let status = 200;
         const {
@@ -68,6 +70,7 @@ module.exports = {
         } = req.body;
         getUserByEmail(email)
             .then(user => {
+                console.log({user});
                 if (user && Object.keys(user).length) {
                     bcrypt.compare(password, user.password).then(match => {
                         if (match) {
@@ -86,33 +89,33 @@ module.exports = {
 
                             result.token = token;
                             result.status = status;
-                            // delete password as we don't need to send it to browser
-                            delete user.password;
-                            result.result = user;
+                            const {name, email, username, _id} = user;
+                            result.result = {name, email, username, _id};
                         } else {
                             status = 401;
                             result.status = status;
-                            result.error = 'Authentication error';
+                            result.errorMessage = 'Password does not match';
                         }
                         res.status(status).send(result);
                     }).catch(err => {
+                        console.log({err});
                         status = 500;
                         result.status = status;
-                        result.error = err;
+                        result.errorMessage = err;
                         res.status(status).send(result);
                     });
                 } else {
                     status = 404;
                     result.status = status;
-                    result.error = 'Authentication error';
-                    res.status(status).send(result);
+                    result.errorMessage = 'Email does not exist';
+                    res.status(status).json(result);
                 }
             })
             .catch(err => {
                 status = 500;
                 result.status = status;
-                result.error = err;
-                res.status(status).send(result);
+                result.errorMessage = err;
+                res.status(status).json(result);
             });
     },
 

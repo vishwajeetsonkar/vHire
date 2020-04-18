@@ -1,8 +1,8 @@
 const React = require("react-native");
-
+import {Dimensions} from 'react-native';
 const { StyleSheet } = React;
 
-export default {
+export default StyleSheet.create({
   wrapper: {
     flex: 1,
   },
@@ -117,10 +117,14 @@ export default {
     paddingRight: 30,
     paddingBottom: 12,
     paddingLeft: 30,
-    borderWidth: 1,
     width: Dimensions.get("window").width / 2,
     textAlign: "center",
     borderRadius: 25,
     marginTop: 20,
+  },
+  disabledSignIn: {
+    opacity: 0.5,
+    backgroundColor: 'grey',
+    
   }
-};
+});

@@ -1,16 +1,24 @@
 import axios from 'axios';
-import Cookies from 'universal-cookie';
-const cookies = new Cookies();
+import {AsyncStorage} from 'react-native';
+import { Service } from 'axios-middleware';
 
-axios.interceptors.request.use(function (config) {
+const service = new Service(axios);
 
-    const token = cookies.get('token');
-    if (token)
-        config.headers.Authorization = token;
-
+service.register({
+  onRequest(config) {
+    const token = AsyncStorage.getItem('token');
+    if (token) {
+       config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
+  },
+  onSync(promise) {
+    return promise;
+  },
+  onResponse(response) {
+    return response;
+  }
 });
-
 
 export default axios
 

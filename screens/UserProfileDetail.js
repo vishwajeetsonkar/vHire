@@ -7,6 +7,7 @@ import { View, StyleSheet, ScrollView, Dimensions, Text } from 'react-native';
 
 import { Video } from 'expo-av';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import {socket} from '../services/socket/socket';
 const {width} = Dimensions;
 
 export class UserProfileDetail extends Component {
@@ -14,6 +15,7 @@ export class UserProfileDetail extends Component {
         console.log('UserProfileDetail/js unmounted');
       }
       componentDidMount() {
+          socket.setSocketConnection();
           console.log('UserProfileDetail is mounted');
       }
     
@@ -21,7 +23,7 @@ export class UserProfileDetail extends Component {
         const {navigation} = this.props;
         return (
             <View style={{ flex: 1, backgroundColor: '#fbfcfd' }}>
-            <AppBarComponent title="Sachin" navigation={navigation}/>
+            <AppBarComponent title="Sachin" showBackAction={false} navigation={navigation}/>
             <ScrollView>
                 <Video
                     source={{ uri: 'http://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4' }}
