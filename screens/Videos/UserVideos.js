@@ -102,7 +102,7 @@ export class UserVideosList extends Component {
       let otherDetails = {
         folderName: "videos",
         userId: 1,
-        bucketName: "flowace-resources/example",
+        bucketName: "example",
         contentType: file.contentType,
         isProgressStart: file.isProgressStart,
         isVideoFailed: file.isVideoFailed,

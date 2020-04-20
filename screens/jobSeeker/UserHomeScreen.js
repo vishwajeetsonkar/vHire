@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import { View, Text, Button } from 'react-native';
 import AppBarComponent from '../../components/appBarComponent';
-
+import {socket} from '../../services/socket/socket';
 export class UserHomeScreen extends Component {
     constructor() {
         super();
+        socket.setSocketConnection();
         
     }
     render() {

@@ -7,16 +7,12 @@ import { View, StyleSheet, ScrollView, Dimensions, Text } from 'react-native';
 
 import { Video } from 'expo-av';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import {socket} from '../services/socket/socket';
 const {width} = Dimensions;
 
 export class UserProfileDetail extends Component {
     componentWillUnmount(){
-        console.log('UserProfileDetail/js unmounted');
       }
       componentDidMount() {
-          socket.setSocketConnection();
-          console.log('UserProfileDetail is mounted');
       }
     
     render() {
